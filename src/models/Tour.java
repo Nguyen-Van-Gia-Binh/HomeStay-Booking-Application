@@ -1,7 +1,8 @@
-package Models;
+package models;
+
+import utilities.Validator;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class Tour {
     private String tourID;
@@ -14,9 +15,8 @@ public class Tour {
     private int number_Tourist;
     private boolean booking;
 
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
     public Tour() {
+
     }
 
     public Tour(String tourID, String tourName, String time, double price, String homeID, LocalDate departure_date,
@@ -108,7 +108,7 @@ public class Tour {
     public String toString() {
         return String.format("%s,%s,%s,%f,%s,%s,%s,%d,%b",
                 tourID, tourName, time, price, homeID,
-                departure_date.format(FORMATTER), end_date.format(FORMATTER),
+                departure_date.format(Validator.FORMATTER), end_date.format(Validator.FORMATTER),
                 number_Tourist, booking);
     }
 }

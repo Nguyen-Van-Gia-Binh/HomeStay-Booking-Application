@@ -1,11 +1,11 @@
 
-import Controler.Controler;
-import View.Menu;
-import Utilities.Inputter;
+import controller.Controller;
+import view.Menu;
+import utilities.Inputter;
 
 public class Main {
     public static void main(String[] args) {
-        Controler controler = new Controler();
+        Controller controler = new Controller();
         Menu menu = new Menu();
         String[] options = {
                 "Add new Tour",

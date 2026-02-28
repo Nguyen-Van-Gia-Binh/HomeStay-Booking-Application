@@ -1,6 +1,6 @@
-package View;
+package view;
 
-import Utilities.Inputter;
+import utilities.Inputter;
 
 public class Menu {
 

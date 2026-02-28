@@ -1,4 +1,6 @@
-package Models;
+package models;
+
+import utilities.Validator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -9,7 +11,6 @@ public class Booking {
     private String tourID;
     private LocalDate booking_date;
     private String phone;
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Booking() {
     }
@@ -66,6 +67,6 @@ public class Booking {
     public String toString() {
         return String.format("%s,%s,%s,%s,%s",
                 bookingID, fullName, tourID,
-                booking_date.format(FORMATTER), phone);
+                booking_date.format(Validator.FORMATTER), phone);
     }
 }

@@ -1,21 +1,21 @@
-package Models;
+package models;
 
 public class Homestay {
     private String homeID;
     private String homeName;
     private String roomNumber;
     private String address;
-    private int maximumcapacity;
+    private int maximumCapacity;
 
     public Homestay() {
     }
 
-    public Homestay(String homeID, String homeName, String roomNumber, String address, int maximumcapacity) {
+    public Homestay(String homeID, String homeName, String roomNumber, String address, int maximumCapacity) {
         this.homeID = homeID;
         this.homeName = homeName;
         this.roomNumber = roomNumber;
         this.address = address;
-        this.maximumcapacity = maximumcapacity;
+        this.maximumCapacity = maximumCapacity;
     }
 
     public String getHomeID() {
@@ -50,17 +50,17 @@ public class Homestay {
         this.address = address;
     }
 
-    public int getMaximumcapacity() {
-        return maximumcapacity;
+    public int getMaximumCapacity() {
+        return maximumCapacity;
     }
 
-    public void setMaximumcapacity(int maximumcapacity) {
-        this.maximumcapacity = maximumcapacity;
+    public void setMaximumCapacity(int maximumCapacity) {
+        this.maximumCapacity = maximumCapacity;
     }
 
     @Override
     public String toString() {
-        return String.format("%s,%s,%s,%s,%d",
-                homeID, homeName, roomNumber, address, maximumcapacity);
+        return String.format("%s-%s-%s-%s-%d",
+                homeID, homeName, roomNumber, address, maximumCapacity);
     }
 }
