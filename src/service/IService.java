@@ -1,7 +1,5 @@
 package service;
 
-import java.util.List;
-
 /**
  * Interface for services
  * 
@@ -21,7 +19,10 @@ public interface IService<T> {
      * @param
      */
     void update();
+
     T searchById(String id);
+
     void saveToFile(String fileName);
+
     void readFromFile(String fileName);
 }

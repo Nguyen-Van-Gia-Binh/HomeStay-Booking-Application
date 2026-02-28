@@ -3,7 +3,6 @@ package models;
 import utilities.Validator;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class Booking {
     private String bookingID;
