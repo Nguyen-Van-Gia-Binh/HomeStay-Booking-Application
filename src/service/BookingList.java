@@ -50,6 +50,7 @@ public class BookingList extends ArrayList<Booking> implements IService<Booking>
     @Override
     public void addNew() {
         System.out.println("--- Add new Booking ---");
+        LocalDate today = LocalDate.now();
         String bookingID;
         while (true) {
             bookingID = Inputter.getString("Enter Booking ID (BXXXXX): ", Validator.BOOKING_ID_VALID, false);
@@ -62,24 +63,33 @@ public class BookingList extends ArrayList<Booking> implements IService<Booking>
 
         String fullName = Inputter.getString("Enter Full Name: ", null, false);
         String tourID;
-        Tour t;
+        Tour tour;
         while (true) {
             tourID = Inputter.getString("Enter Tour ID to book (TXXXXX): ", Validator.TOUR_ID_VALID, false);
-            t = tourList.searchById(tourID);
-            if (t == null || t.isBooking()) {
+            tour = tourList.searchById(tourID);
+            if (tour == null || tour.isBooking()) {
                 System.out.println("Tour not found or already booked.");
                 continue;
             }
+
+            if (tour.getDeparture_date().isBefore(today)) {
+                System.out.println("Can not book tour has already started.");
+                continue;
+            }
+
             break;
         }
 
         LocalDate bookingDate;
         while (true) {
             bookingDate = Inputter.getLocalDate("Enter Booking Date (dd/MM/yyyy): ", false);
-            LocalDate now = LocalDate.now();
-            if (!((bookingDate.isAfter(now) || bookingDate.isEqual(now))
-                    && bookingDate.isBefore(t.getDeparture_date()))) {
-                System.out.println("Booking date must be before tour departure date and >= today.");
+            if (bookingDate.isBefore(today)) {
+                System.out.println("Can not book tour in the past.");
+                continue;
+            }
+
+            if (bookingDate.isAfter(tour.getDeparture_date())) {
+                System.out.println("Can not book tour after departure date.");
                 continue;
             }
             break;
@@ -89,75 +99,76 @@ public class BookingList extends ArrayList<Booking> implements IService<Booking>
 
         Booking booking = new Booking(bookingID, fullName, tourID, bookingDate, phone);
         this.add(booking);
-        t.setBooking(true);
+        tour.setBooking(true);
 
-        System.out.println("Added booking successfully.");
+        System.out.println("Added booking: " + booking + " successfully.");
     }
 
     @Override
     public void update() {
         System.out.println("--- Update Booking ---");
-        String bookingID;
-        Booking b;
+
+        Booking booking;
+        LocalDate today = LocalDate.now();
         while (true) {
-            bookingID = Inputter.getString("Enter Booking ID to update: ", Validator.BOOKING_ID_VALID, false);
-            b = this.searchById(bookingID);
-            if (b == null) {
+            String bookingID = Inputter.getString("Enter Booking ID to update: ", Validator.BOOKING_ID_VALID, false);
+            booking = this.searchById(bookingID);
+            if (booking == null) {
                 System.out.println("This Booking does not exist!");
-                return;
+                continue;
             }
             break;
         }
 
         String name = Inputter.getString("Enter new Full Name (Enter to skip): ", null, true);
         if (!name.isEmpty()) {
-            b.setFullName(name);
+            booking.setFullName(name);
         }
 
         String phone = Inputter.getString("Enter new Phone Number (Enter to skip): ", Validator.PHONE_VALID, true);
         if (!phone.isEmpty()) {
-            b.setPhone(phone);
+            booking.setPhone(phone);
         }
 
         String tourID;
         while (true) {
             tourID = Inputter.getString("Enter new Tour ID to book (TXXXXX) (Enter to skip): ", Validator.TOUR_ID_VALID,
                     true);
-            if (tourID.isEmpty() || tourID.equalsIgnoreCase(b.getTourID())) {
+            if (tourID.isEmpty() || tourID.equalsIgnoreCase(booking.getTourID())) {
                 break;
             }
             Tour newTour = tourList.searchById(tourID);
-            if (newTour == null || newTour.isBooking() || newTour.getDeparture_date().isBefore(LocalDate.now())) {
-                System.out.println("Tour not found, already booked, or already started.");
+            if (newTour == null || newTour.isBooking() || newTour.getDeparture_date().isBefore(today)) {
+                System.out.println("Tour not found, or already booked, or already started.");
                 continue;
             }
-            b.setTourID(tourID);
-            newTour.setBooking(true);
-            Tour oldTour = tourList.searchById(b.getTourID());
+
+            Tour oldTour = tourList.searchById(booking.getTourID());
             if (oldTour != null) {
                 oldTour.setBooking(false);
             }
+            booking.setTourID(tourID);
+            newTour.setBooking(true);
             break;
         }
 
         LocalDate bookingDate;
         while (true) {
             bookingDate = Inputter.getLocalDate("Enter new Booking Date (dd/MM/yyyy) (Enter to skip): ", true);
-            if (bookingDate == null) {
-                break;
-            }
-            LocalDate now = LocalDate.now();
-            Tour currentTour = tourList.searchById(b.getTourID());
-            if (!((bookingDate.isAfter(now) || bookingDate.isEqual(now))
+
+            bookingDate = (bookingDate != null) ? bookingDate : booking.getBooking_date();
+
+            Tour currentTour = tourList.searchById(booking.getTourID());
+            if (!((bookingDate.isAfter(today) || bookingDate.isEqual(today))
                     && bookingDate.isBefore(currentTour.getDeparture_date()))) {
                 System.out.println("Booking date must be before tour departure date and >= today.");
                 continue;
             }
-            b.setBooking_date(bookingDate);
+            booking.setBooking_date(bookingDate);
             break;
         }
 
-        System.out.println("Booking updated successfully.");
+        System.out.println("Booking" + booking + " has been updated successfully.");
     }
 
     @Override
@@ -172,20 +183,30 @@ public class BookingList extends ArrayList<Booking> implements IService<Booking>
 
     public void removeBooking() {
         System.out.println("--- Remove Booking ---");
-        String bookingID = Inputter.getString("Enter Booking ID to remove: ", Validator.BOOKING_ID_VALID, false);
-        Booking b = this.searchById(bookingID);
-        if (b == null) {
-            System.out.println("This booking does not exist!");
-            return;
+        Booking booking;
+        while (true) {
+            String bookingID = Inputter.getString("Enter Booking ID to remove: ", Validator.BOOKING_ID_VALID, false);
+            booking = this.searchById(bookingID);
+            if (booking == null) {
+                System.out.println("This booking does not exist!");
+                continue;
+            }
+
+            Tour tour = tourList.searchById(booking.getTourID());
+            if (tour.getDeparture_date().isBefore(LocalDate.now())) {
+                System.out.println("Can not remove tour has already started.");
+                continue;
+            }
+            break;
         }
 
         // Make sure the tour is not booked
-        Tour t = tourList.searchById(b.getTourID());
-        if (t != null) {
-            t.setBooking(false);
+        Tour tour = tourList.searchById(booking.getTourID());
+        if (tour != null) {
+            tour.setBooking(false);
         }
-        this.remove(b);
-        System.out.println("Booking removed successfully.");
+        this.remove(booking);
+        System.out.println("Booking " + booking + " has been removed successfully.");
     }
 
     public void removeBooking(String bookingID) {

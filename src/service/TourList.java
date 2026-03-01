@@ -43,7 +43,7 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
                     return null;
                 }
                 String homeId = parts[4].trim();
-                // Clean dirty date
+                // Clean dirty data
                 if (homestayList.searchById(homeId) == null){
                     return null;
                 }
@@ -68,7 +68,7 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
         String tourID;
         while (true) {
             tourID = Inputter.getString("Enter Tour ID (TXXXXX): ", Validator.TOUR_ID_VALID, false);
-            if (this.searchById(tourID) != null) {
+            if (!(this.searchById(tourID) == null)) {
                 System.out.println("Tour ID already exists.");
                 continue;
             }
@@ -95,8 +95,14 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
         while (true) {
             departureDate = Inputter.getLocalDate("Enter Departure Date (dd/MM/yyyy): ", false);
             endDate = Inputter.getLocalDate("Enter End Date (dd/MM/yyyy): ", false);
+
             if (endDate.isBefore(departureDate)) {
                 System.out.println("End date must be >= departure date.");
+                continue;
+            }
+
+            if (departureDate.isBefore(LocalDate.now())) {
+                System.out.println("New tour can not start in the past.");
                 continue;
             }
             if (isOverlap(departureDate, endDate, homeID)) {
@@ -119,81 +125,87 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
 
         Tour tour = new Tour(tourID, tourName, time, price, homeID, departureDate, endDate, numTourist, false);
         this.add(tour);
-        System.out.println("[Success] Tour " + tourID + " has been added successfully.");
+        System.out.println("[Success] Tour: " + tour + " has been added successfully.");
     }
 
     @Override
     public void update() {
         System.out.println("--- Update Tour ---");
-        String tourID = Inputter.getString("Enter Tour ID to update: ", Validator.TOUR_ID_VALID, false);
-        Tour tour = searchById(tourID);
-        if (tour == null) {
-            System.out.println("This tour does not exist!");
-            return;
-        }
+        Tour tour;
+        LocalDate today = LocalDate.now();
+        while(true) {
 
-        System.out.println("Current Name: " + tour.getTourName());
-        String tourName = Inputter.getString("Enter new Tour Name (Enter to skip): ", null, true);
-        if (!tourName.isEmpty())
-            tour.setTourName(tourName);
-
-        System.out.println("Current Time: " + tour.getTime());
-        String time = Inputter.getString("Enter new Time (Enter to skip): ", null, true);
-        if (!time.isEmpty())
-            tour.setTime(time);
-
-        System.out.println("Current Price: " + tour.getPrice());
-        double price = Inputter.getDouble("Enter new Price (Enter (or input 0) to skip): ", true);
-        if (price > 0)
-            tour.setPrice(price);
-
-        LocalDate departureDate = tour.getDeparture_date();
-        LocalDate endDate = tour.getEnd_date();
-        String homeID = tour.getHomeID();
-
-        while (true) {
-            LocalDate inDep = Inputter.getLocalDate("Enter new Departure Date (dd/MM/yyyy) (Enter to skip): ", true);
-            LocalDate inEnd = Inputter.getLocalDate("Enter new End Date (dd/MM/yyyy) (Enter to skip): ", true);
-            String inHome = Inputter.getString("Enter new Home ID (Enter to skip): ", Validator.HOME_ID_VALID, true);
-
-            if (inDep == null && inEnd == null && inHome.isEmpty())
-                break;
-
-            LocalDate testDep = (inDep != null) ? inDep : departureDate;
-            LocalDate testEnd = (inEnd != null) ? inEnd : endDate;
-            String testHome = (!inHome.isEmpty()) ? inHome : homeID;
-
-            if (homestayList.searchById(testHome) == null) {
-                System.out.println("Homestay not found.");
+            String tourID = Inputter.getString("Enter Tour ID to update: ", Validator.TOUR_ID_VALID, false);
+            tour = searchById(tourID);
+            if (tour == null) {
+                System.out.println("This tour does not exist!");
                 continue;
             }
 
-            if (testEnd.isBefore(testDep)) {
+            if (tour.getDeparture_date().isBefore(today)){
+                System.out.println("Can not update tour has already started");
+                continue;
+            }
+
+            break;
+        }
+        {
+            System.out.println("Current Name: " + tour.getTourName());
+            String tourName = Inputter.getString("Enter new Tour Name (Enter to skip): ", null, true);
+            if (!tourName.isEmpty())
+                tour.setTourName(tourName);
+
+            System.out.println("Current Time: " + tour.getTime());
+            String time = Inputter.getString("Enter new Time (Enter to skip): ", null, true);
+            if (!time.isEmpty())
+                tour.setTime(time);
+
+            System.out.println("Current Price: " + tour.getPrice());
+            double price = Inputter.getDouble("Enter new Price (Enter (or input 0) to skip): ", true);
+            if (price > 0)
+                tour.setPrice(price);
+        }
+
+        while (true) {
+            System.out.println("Current Home ID: " + tour.getHomeID());
+            String homeID = Inputter.getString("Enter new Home ID (Enter to skip): ", Validator.HOME_ID_VALID, true);
+            if (homeID.isEmpty()){
+                break;
+            }
+            if (homestayList.searchById(homeID) == null) {
+                System.out.println("Homestay not found.");
+                continue;
+            }
+            tour.setHomeID(homeID);
+            break;
+        }
+
+
+        while (true) {
+            LocalDate newDeparture = Inputter.getLocalDate("Enter new Departure Date (dd/MM/yyyy) (Enter to skip): ", true);
+            LocalDate newEnd = Inputter.getLocalDate("Enter new End Date (dd/MM/yyyy) (Enter to skip): ", true);
+
+            newDeparture = (newDeparture != null) ? newDeparture : tour.getDeparture_date();
+            newEnd = (newEnd != null) ? newEnd : tour.getEnd_date();
+
+
+            if (newDeparture.isAfter(newEnd)) {
                 System.out.println("End date must be >= departure date.");
                 continue;
             }
 
-            boolean overlap = false;
-            for (Tour t : this) {
-                if (!t.getTourID().equals(tour.getTourID()) && t.getHomeID().equalsIgnoreCase(testHome)) {
-                    if (!(testEnd.isBefore(t.getDeparture_date()) || testDep.isAfter(t.getEnd_date()))) {
-                        overlap = true;
-                        break;
-                    }
-                }
+            if (newDeparture.isBefore(today)){
+                System.out.println("New tour can not start in the past.");
+                continue;
             }
-            if (overlap) {
+
+            if (isOverlap(newDeparture, newEnd, tour.getHomeID(), tour.getTourID())) {
                 System.out.println("Tour date overlaps with another tour in the same homestay.");
                 continue;
             }
 
-            departureDate = testDep;
-            endDate = testEnd;
-            homeID = testHome;
-
-            tour.setDeparture_date(departureDate);
-            tour.setEnd_date(endDate);
-            tour.setHomeID(homeID);
+            tour.setDeparture_date(newDeparture);
+            tour.setEnd_date(newEnd);
             break;
         }
 
@@ -214,6 +226,7 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
 
         Boolean booking = Inputter.getBoolean("Enter new Booking status (Enter to skip): ", true);
         if (booking != null) {
+           // booking is false with delete
             if (!booking) {
                 for (Booking b : new ArrayList<>(bookingList)) {
                     if (b.getTourID().equalsIgnoreCase(tour.getTourID())) {
@@ -224,7 +237,7 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
             tour.setBooking(booking);
         }
 
-        System.out.println("[Success] Tour updated!");
+        System.out.println("[Success] Tour: " + tour + " has been updated!");
     }
 
     @Override
@@ -290,6 +303,18 @@ public class TourList extends ArrayList<Tour> implements IService<Tour> {
     public boolean isOverlap(LocalDate departureDate, LocalDate endDate, String homeID) {
         for (Tour t : this) {
             if (t.getHomeID().equalsIgnoreCase(homeID)) {
+                // Violate the condition (opposite logic)
+                if (!(endDate.isBefore(t.getDeparture_date()) || departureDate.isAfter(t.getEnd_date()))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isOverlap(LocalDate departureDate, LocalDate endDate, String homeID, String tourID) {
+        for (Tour t : this) {
+            if (t.getHomeID().equalsIgnoreCase(homeID) && !t.getTourID().equalsIgnoreCase(tourID)) {
                 // Violate the condition (opposite logic)
                 if (!(endDate.isBefore(t.getDeparture_date()) || departureDate.isAfter(t.getEnd_date()))) {
                     return true;
