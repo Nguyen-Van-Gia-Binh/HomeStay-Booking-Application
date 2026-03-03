@@ -5,7 +5,7 @@ import utilities.Inputter;
 
 public class Main {
     public static void main(String[] args) {
-        Controller controler = new Controller();
+        Controller controller = new Controller();
         Menu menu = new Menu();
         String[] options = {
                 "Add new Tour",
@@ -25,35 +25,35 @@ public class Main {
             choice = menu.getChoice(options);
             switch (choice) {
                 case 1:
-                    controler.addTour();
+                    controller.addTour();
                     break;
                 case 2:
-                    controler.updateTour();
+                    controller.updateTour();
                     break;
                 case 3:
-                    controler.listToursEarlierThanCurrentDate();
+                    controller.listToursEarlierThanCurrentDate();
                     break;
                 case 4:
-                    controler.listTotalBookingAmountLaterThanCurrentDate();
+                    controller.listTotalBookingAmountLaterThanCurrentDate();
                     break;
                 case 5:
-                    controler.addBooking();
+                    controller.addBooking();
                     break;
                 case 6:
-                    controler.removeBooking();
+                    controller.removeBooking();
                     break;
                 case 7:
-                    controler.updateBooking();
+                    controller.updateBooking();
                     break;
                 case 8:
-                    controler.searchBookingByName();
+                    controller.searchBookingByName();
                     break;
                 case 9:
-                    controler.statisticsTourists();
+                    controller.statisticsTourists();
                     break;
                 case 10:
                     if (Inputter.getYesNo("Do you want to save data before quitting?")) {
-                        controler.saveData();
+                        controller.saveData();
                     }
                     System.out.println("Goodbye!");
                     break;

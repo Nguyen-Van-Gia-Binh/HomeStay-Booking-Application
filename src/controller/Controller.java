@@ -25,9 +25,9 @@ public class Controller {
         tourList = new TourList(homestayList, bookingList);
         bookingList.setTourList(tourList);
         loadData();
-        System.out.println(homestayList);
-        System.out.println(tourList);
-        System.out.println(bookingList);
+//        System.out.println(homestayList);
+//        System.out.println(tourList);
+//        System.out.println(bookingList);
     }
 
 
