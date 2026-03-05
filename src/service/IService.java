@@ -3,20 +3,20 @@ package service;
 /**
  * Interface for services
  * 
- * @param
+ *
  */
 public interface IService<T> {
     /**
      * Add a new item
      * 
-     * @param
+     *
      */
     void addNew();
 
     /**
      * Update an item
      * 
-     * @param
+     *
      */
     void update();
 

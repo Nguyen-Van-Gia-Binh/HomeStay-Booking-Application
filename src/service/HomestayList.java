@@ -16,7 +16,7 @@ public class HomestayList extends ArrayList<Homestay> {
     public void loadFromFile(String fileName) {
         this.clear();
         this.addAll(FileUtils.readFromFile(fileName, (String line) -> {
-            // HS0006-Dong Van CliffSide House	4-10 Don Cao, Dong Van Town, Ha Giang Ward, Tuyen Quang Province-14
+            // HS0004-Moc Chau Hill House-3-Tay Tien Hill, Sub-district 12, Moc Chau, Son La Province-12
             String[] parts = line.split("-");
             if (parts.length >= 5) {
                 String homeID = parts[0].trim();
